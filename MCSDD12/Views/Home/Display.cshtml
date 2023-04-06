@@ -1,0 +1,41 @@
+﻿@model MCSDD12.Models.Products
+
+@{
+    ViewBag.Title = "Display";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card shadow mt-4" href="@Url.Action("Display", new {id=Model.ProductID})">
+    <div class="row">
+        <div class="col-md-5">
+            <img src="@Url.Action("GetImage","Products", new { id=Model.ProductID})" class="img-thumbnail m-4" />
+        </div>
+        <div class="col-md-7">
+            <div class="card-body">
+                <h4 class="text-dark"><strong>@Model.ProductName</strong></h4>
+                <p>
+                    @Html.Raw(Model.Description.ToString().Replace("\n", "<br>"))
+                </p>
+                <p class="text-black-50 text-right">原價:<span style="text-decoration:line-through">@(Model.UnitPrice*5)</span></p>
+                <h2 class="text-danger text-right"><strong>@Html.DisplayFor(modelItem => Model.UnitPrice)</strong></h2>
+                <h3 class="text-right">
+                    <i class="bi bi-heart-fill text-danger" data-toggle="tooltip" data-placement="bottom" title="加入追蹤"></i>
+                    <i class="bi bi-cart4 text-primary" data-toggle="tooltip" data-placement="bottom" title="放入購物車"></i>
+                    <i class="bi bi-bucket text-success" data-toggle="tooltip" data-placement="bottom" title="直接購買"></i>
+                </h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="text-right mt-5">
+    <a href="@Url.Action("Index")"><i class="bi bi-backspace-fill"></i> 返回商品主頁</a>
+</div>
+@section scripts{
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+}
+

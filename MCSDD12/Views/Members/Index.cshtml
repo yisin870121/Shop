@@ -1,0 +1,158 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+
+
+@*@model IEnumerable<MCSDD12.Models.Members>*@
+@model IPagedList<MCSDD12.Models.Members>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@section css{
+    <style>
+        #addMember {
+            display: none;
+        }
+    </style>
+}
+
+<h2>會員資料管理</h2>
+
+<p class="text-right">
+    <button class="btn btn-primary" id="showAddForm"><span class="glyphicon glyphicon-plus">新增會員</span></button>
+</p>
+<div class="well alert alert-primary" id="addMember">
+    @Html.Action("_Create")
+</div>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().MemberID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().MemberName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().MemberBirthday)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().CreatedDate)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberBirthday)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
+            <td>
+                <button type="button" id="@item.MemberID" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#showEditModal" onclick="getEditData(event)">
+                    編輯資料
+                </button>
+               
+                <button type="button" id="@item.MemberID" class="btn btn-success btn-sm" data-toggle="modal" data-target="#showDetailModal" onclick="getDetailData(event)">
+                    查看詳細資料
+                </button>
+
+                @Html.ActionLink("更改密碼", "Delete", new { id = item.MemberID }, new { @class = "btn btn-danger btn-sm" })
+            </td>
+        </tr>
+    }
+
+</table>
+
+
+@*要在這邊作頁碼!*@
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+
+@*寫頁碼時，這段是BootStrap的頁碼程式碼，拿來對照用的，所以需要對照開啟網頁後看原始碼及檢查，再去寫下面的scripts*@
+@*<nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+                <a class="page-link">Previous</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">Next</a>
+            </li>
+        </ul>
+    </nav>*@
+
+@*modal-xl要寫在modal-dialog才有效，modal畫面大小才會變*@
+<div class="modal fade" id="showDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<h5 class="modal-title" id="exampleModalLabel">會員詳細資料</h5>*@
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="showEditModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        /*開啟網頁後看原始碼及檢查，再去寫這三段*/
+        $('.pagination-container >ul').addClass('justify-content-center');
+        $('.pagination-container >ul>li').removeClass().addClass('page-item');
+        $('.pagination-container >ul>li>a').addClass('page-link');
+
+        function getDetailData(evt) {
+
+            $('#showDetailModal .modal-body').load("/Members/_Details/" + evt.target.id);
+        }
+
+        function getEditData(evt) {
+
+            $('#showEditModal .modal-body').load("/Members/_Edit/" + evt.target.id);
+        }
+
+        $('#showAddForm').click(function () {
+
+            $('#addMember').fadeToggle(800);
+        });
+    </script>
+}

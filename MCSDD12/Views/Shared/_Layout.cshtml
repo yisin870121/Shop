@@ -1,0 +1,63 @@
+﻿@{
+    string text = "", action = "";
+
+    text = Session["member"] == null ? "登入" : "登出";
+    action = Session["member"] == null ? "Login" : "Logout";
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title - 鍋具商城</title>
+
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    @RenderSection("css", false)
+    @*@Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")*@
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            @Html.ActionLink("鍋具商城", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainMenu">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        @Html.ActionLink("首頁", "Index", "Home", new { area = "" }, new { @class = "nav-link" })
+                    </li>
+
+                    <li class="nav-item ml-auto">
+                        @Html.ActionLink(text, action, "Home", new { area = "" }, new { @class = "nav-link btn btn-info text-light" })
+                    </li>
+                    @*<li class="nav-item">
+                            @Html.ActionLink("API", "Index", "Help", new { area = "" }, null)
+                        </li>*@
+                </ul>
+            </div>
+            @*<form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Search</button>
+                </form>*@
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 應用程式</p>
+        </footer>
+    </div>
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+    @RenderSection("scripts", false)
+</body>
+</html>

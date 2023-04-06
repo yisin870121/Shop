@@ -1,0 +1,126 @@
+﻿
+@{
+    ViewBag.Title = "MyCart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center alert alert-info">我的購物車</h2>
+
+<div id="MyCart">
+    
+</div>
+<hr />
+<div class="text-right" id="btnArea">
+    <i class="bi bi-cart-check text-info" id="updateCart" data-toggle="tooltip" data-placement="bottom" title="更新購物車"></i>
+    <i class="bi bi-cart-x text-danger" id="clearCart" data-toggle="tooltip" data-placement="bottom" title="清空購物車"></i>
+    <a href="@Url.Action("Order","MemberOrder")" class="bi bi-cash-coin text-success" data-toggle="tooltip" data-placement="bottom"  title="確定結帳"></a>
+</div>
+<div>
+    <a href="@Url.Action("Index")"><i class="bi bi-backspace-fill"></i> 返回商品主頁</a>
+</div>
+
+@section css{
+    <style>
+        #btnArea > i{
+            cursor:pointer;
+        }
+    </style>
+    }
+
+@section scripts{
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+
+        let toNTD = new Intl.NumberFormat('zh-TW', {
+            style: 'currency',
+            currency:'NTD'
+        });
+
+
+        //傳統寫法時，initCart();可以寫在上方
+        //initCart();
+        var cart = [];
+
+        //傳統寫法
+        //function initCart()
+        //新寫法
+        //let initCart = function ()
+        let initCart = function () {
+            if (!localStorage.getItem("cart") || localStorage.getItem("cart") == "[]") {
+                $('#MyCart').html(`<h2 class="text-danger text-center">目前購物車內沒有任何商品</h2>`);
+            }
+            else {
+                cart = JSON.parse(localStorage.getItem("cart"));
+
+                let cartList = "";
+                let c = 0;
+                let total = 0;
+                for (let item of cart) {
+                    total += item.Amount * item.Price;
+
+                    cartList += `<div class="media p-4 mb-3 border-bottom border-dark">
+                    <h2 style="font-size:2.5rem" class="align-self-center text-black-50 mr-5">${++c}</h2>
+                    <img src="/Products/GetImage/${item.PID}" class="mr-3" width="200">
+                    <div class="media-body">
+                        <h5 class="mt-0"><strong>${item.PName}</strong></h5>
+                        <h4>
+                            <span>數量: <input class="text-center" id="${item.PID}" type="text" value="${item.Amount}" style="width:60px"/></span>
+                            <span>價格: $${item.Price}</span>
+                        </h4>
+                        <hr />
+                        <h4 class="text-right"><strong>小計:<span class="text-danger"> ${toNTD.format(item.Price * item.Amount)}</span ></strong ></h4 >
+                        <p class="text-right"><button class="btn btn-danger" title="btnDelete" id="${c}"><i class="bi bi-trash3-fill" title="btnDelete"></i> 移除商品</button></p>
+                    </div>
+                </div>`
+                }
+                $('#MyCart').html(cartList);
+                $('#MyCart').append(`<h3 class="text-right">總計金額: <strong class="text-danger"> ${toNTD.format(total)}</strong></h3>`);
+                
+            }
+
+        }
+        //新寫法時，會有順序性，initCart();要寫在這邊
+        initCart();
+
+        //清空購物車
+        $('#clearCart').click(() => {
+            if (confirm('確定清空購物車?')) {
+                cart = [];
+                localStorage.removeItem("cart");
+
+                initCart();
+            }
+        });
+
+        //更新購物車
+        $('#updateCart').click(() => {
+            for (var item of cart) {
+                item.Amount = $('#' + item.PID).val();
+            }
+            localStorage.setItem("cart", JSON.stringify(cart));
+            initCart();
+        });
+
+        //移除單一品項
+        //傳統寫法------------------------------------------
+        //$('#MyCart').click(function (evt) {
+
+        //});
+
+        //lenda寫法-----------------------------------------
+        $('#MyCart').click(evt => {
+            //alert(evt.target.id-1)這句話可以抓到id
+            if (evt.target.title == "btnDelete") { 
+            if (confirm('確定移除此商品')) {
+                //1為長度，從抓到的id刪掉一個
+                cart.splice(evt.target.id-1, 1);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                initCart();
+                }
+            }
+        });
+    </script>
+    
+    }

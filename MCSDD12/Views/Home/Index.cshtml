@@ -1,0 +1,230 @@
+﻿@*使用Products模型*@
+@model IEnumerable<MCSDD12.Models.Products>
+
+@*寫C#的地方可以寫在上面*@
+
+@*指定Layout可以寫在這樣*@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //string actvie = "";
+    int c = 0;
+
+}
+
+@*獨立成一個函數
+helper的作法*@
+@helper IsActive(int c)
+{
+
+    if (c == 0)
+    {
+        @:active
+    }
+
+}
+
+<div id="adForProducts" class="carousel slide" data-ride="carousel">
+    <ol class="carousel-indicators">
+        <li data-target="#adForProducts" data-slide-to="0" class="active"></li>
+        @for (int i = 1; i < Model.Count(); i++)
+        {
+            <li data-target="#adForProducts" data-slide-to="@i"></li>
+        }
+
+    </ol>
+    <div class="carousel-inner">
+
+        @foreach (var item in Model)
+        {
+            //actvie = c == 0 ? "active" : "";
+
+            //原本IsActive(c)的位置是actvie 
+            <div class="carousel-item @IsActive(c)">  @*data - interval = "1500" 自動變換圖片的秒數*@
+
+                <img src="@Url.Action("GetImage", "Products", new { id = item.ProductID })" class="d-block w-100 " style="height:400px" />
+                <div class="carousel-caption d-none d-md-block">
+                    <h5 class="text-truncate bg-dark">@item.ProductName</h5>
+                    <p class="text-truncate bg-dark">@item.Description</p>
+                </div>
+            </div>
+            c++;
+        }
+
+
+
+    </div>
+    <button class="carousel-control-prev" type="button" data-target="#adForProducts" data-slide="prev">
+        <span class="carousel-control-prev-icon bg-dark" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-target="#adForProducts" data-slide="next">
+        <span class="carousel-control-next-icon bg-dark" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </button>
+</div>
+
+<div class="row">
+
+    @foreach (var item in Model)
+    {
+        <div class="col-md-3 p-1">
+            <div class="card border-info h-100">
+                <div class="card-body">
+                    @*<a href="@Url.Action("Display", new {id=item.ProductID})">*@
+                    <a href="@Url.Action("DisplayByTitle", new { title=Server.UrlEncode(item.ProductName)})">
+                        <img src="@Url.Action("GetImage","Products", new { id=item.ProductID})" class="img-fluid pt-2" /> @*img-fluid為響應式大小*@
+                        <input type="hidden" value="@item.ProductID" class="PID" />
+                        <h5 class="text-dark"><strong class="PName">@item.ProductName</strong></h5>
+                        <h3 class="text-danger text-right Price" p="@item.UnitPrice">@Html.DisplayFor(modelItem => item.UnitPrice)</h3>
+                    </a>
+                </div>
+                <div class="p-2">
+                    <p><button class="btn btn-success btn-block addCart">加入購物車 <i class="bi bi-cart2"></i></button></p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<span id="MyCart">
+    <a href="@Url.Action("MyCart")"><i class="bi bi-cart4"></i> 
+    <span class="badge badge-light text-white bg-danger" style="font-size:1.3rem"></span></a>
+</span>
+
+
+@section css{
+    <style>
+        a:hover {
+            text-decoration: none;
+        }
+
+        #MyCart {
+            position: fixed;
+            right: 30px;
+            bottom: 70px;
+            font-size: 3rem;
+        }
+
+            #MyCart > i {
+                text-shadow: 0 0 4px #ffd800;
+            }
+
+            #MyCart > span {
+                font-size: 1rem;
+            }
+    </style>
+}
+
+@section scripts{
+    <script>
+        var cart = [];
+
+        /*宣告一個空陣列並寫判斷式*/
+        if (localStorage.getItem("cart")) {
+            /*把localStorage的資料取出來*/
+            cart = JSON.parse(localStorage.getItem("cart"));
+        }
+
+        $('#MyCart .badge').text(cart.length);
+
+        $('.addCart').click(function () {
+            /*this就是addCart*/
+            /*closest就是把整個card點出來*/
+            let product = $(this).closest('.card');
+            let newPID = product.find('.PID').val();
+
+            /* 尋找相符的條件*/
+            let foundItem = cart.find(item => item.PID == newPID);
+            if (foundItem === undefined) {
+                setCart(product);
+            }
+            else {
+                foundItem.Amount += 1;
+                alert("商品數量已更新");
+            }
+
+            /*console可以去網頁按F12看Console抓到什麼東西*/
+            /*直接寫text()*/
+                     /* console.log(product.find('.PName').text());*/
+            /*如果ProductID是放在value裡，所以要換成val()*/
+                     /*console.log(product.find('.PID').val());*/
+            /*如果UnitPrice是放在p屬性裡，所以要換成attr()，裡面再放屬性名稱*/
+            /* console.log(product.find('.Price').attr('p'));*/
+
+
+
+
+            /*以下太攏長，換上面的方法寫*/
+           /* ---------------------------------------------------------------*/
+        //    /*宣告變數*/
+        //    let newPID = product.find('.PID').val();
+
+
+        //    /*如果陣列是空的*/
+        //    if (cart.length > 0) {
+        //        /*let item of cart為全部拜訪*/
+        //        for (let i in cart) {
+        //            if (cart[i]["PID"] == newPID) {
+        //                /*  代表此商品已經在購物車中，因此將數量加一*/
+        //                cart[i]["Amount"] += 1;
+        //                alert("商品數量已更新");
+        //                break;
+        //            }
+        //            /*迴圈全都掃完後沒有，再new一個*/
+        //            else if (cart.length - 1 == i) {
+        //                setCart(product);
+        //                ///*做物件*/
+        //                //let newItem = {
+        //                //    PID: product.find('.PID').val(),
+        //                //    PName: product.find('.PName').text(),
+        //                //    Price: product.find('.Price').attr('p'),
+        //                //    Amount: 1
+        //                //}
+        //                ///*push就是把值放進去。放到陣列裡*/
+        //                //cart.push(newItem);
+        //                //alert("商品已加入購物車");
+        //            }
+        //        }
+        //    }
+        //    else {
+        //        setCart(product);
+        //        //let newItem = {
+        //        //    PID: product.find('.PID').val(),
+        //        //    PName: product.find('.PName').text(),
+        //        //    Price: product.find('.Price').attr('p'),
+        //        //    Amount: 1
+        //        //}
+        //        //cart.push(newItem);
+        //        //alert("商品已加入購物車");
+        //    }
+            /*  -------------------------------------------------------------*/
+
+
+            console.log(cart);
+
+            /*把資料丟進去*/
+            /*前方的cart: 是網頁上localStorage的id名稱取cart , 後面的cart: 是cart陣列*/
+            localStorage.setItem("cart", JSON.stringify(cart));
+
+        })
+
+        function setCart(product) {
+            let newItem = {
+                PID: product.find('.PID').val(),
+                PName: product.find('.PName').text(),
+                Price: product.find('.Price').attr('p'),
+                Amount: 1
+            }
+            cart.push(newItem);
+            $('#MyCart .badge').text(cart.length);
+            alert("商品已加入購物車");
+        }
+      
+
+
+
+    </script>
+    
+    }
+
+
+@*要呈現模型中DisplayFormat設定的規格則要寫成 @Html.DisplayFor(modelItem => item.UnitPrice) 這樣子，寫這樣@item.UnitPrice沒有用!*@
